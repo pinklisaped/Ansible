@@ -1,0 +1,12 @@
+---
+- name: Grafana install
+  hosts: all
+  become: true
+  roles:
+    - grafana
+  vars:
+    grafana_port: 3000
+    grafana_version: latest
+    ufw_allow_addr: any
+  # environment:
+  #   https_proxy: http://127.0.0.1:3128 # Proxy set in current format http://proxy:port

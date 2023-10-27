@@ -1,0 +1,38 @@
+---
+- name: Add grafana repos
+  block:
+    - name: Grafanarepo | no apt key
+      ansible.builtin.get_url:
+        url: https://apt.grafana.com/gpg.key
+        dest: /etc/apt/trusted.gpg.d/grafana.key
+        mode: 0644
+        use_proxy: true
+
+    - name: Grafanarepo | apt source
+      ansible.builtin.apt_repository:
+        repo: deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/grafana.key] https://apt.grafana.com stable main
+        state: present
+        filename: grafana
+        update_cache: false
+
+- name: Update package repositories and install grafana
+  ansible.builtin.apt:
+    name: grafana
+    state: "{{ grafana_version }}"
+    update_cache: true
+
+- name: Copy settings
+  ansible.builtin.template:
+    src: grafana.ini.j2
+    dest: /etc/grafana/grafana.ini
+    mode: "0644"
+    owner: root
+    group: root
+  notify:
+    - Restart grafana
+
+- name: Grafanarepo | apt source remove
+  ansible.builtin.apt_repository:
+    repo: deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/grafana.key] https://apt.grafana.com stable main
+    state: absent
+    filename: grafana
