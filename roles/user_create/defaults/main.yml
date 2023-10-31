@@ -1,0 +1,6 @@
+---
+# defaults file for user_create
+uusername: ansible
+usudo: true
+unopasswd: "{{ usudo }}"
+ushell: /bin/bash
