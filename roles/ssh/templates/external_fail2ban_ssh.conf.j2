@@ -1,0 +1,8 @@
+[sshd]
+enabled  = true
+filter   = sshd
+action   = ufw[name=SSH, port=ssh, protocol=tcp]
+logpath  = /var/log/auth.log
+findtime    = {{ failban_findtime }}
+maxretry    = {{ failban_maxretry }}
+bantime     = {{ failban_bantime }}
