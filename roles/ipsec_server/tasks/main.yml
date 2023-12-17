@@ -1,0 +1,23 @@
+---
+# tasks file for roles/ipsec_server
+- name: Install strongswan
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - strongswan
+    - strongswan-pki
+    - libcharon-extra-plugins
+    - libcharon-extauth-plugins
+    - libstrongswan-extra-plugins
+
+- name: Configure server
+  ansible.builtin.template:
+    src: ipsec.conf.j2
+    dest: /etc/ipsec.conf
+    mode: "0444"
+    owner: root
+    group: root
+
+- name: IPSec ufw configuration
+  ansible.builtin.import_tasks: ufw.yml
