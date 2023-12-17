@@ -1,0 +1,11 @@
+---
+# defaults file for roles/selfsign_certificate
+selfsign_certificate_ca_key: ca.key
+selfsign_certificate_ca_path: ca.pem
+selfsign_certificate_ca_passphrase: null
+
+selfsign_certificate_key: cert-key.key
+selfsign_certificate_path: certificate.key
+
+selfsign_certificate_cn: "{{ ansible_host }}"
+selfsign_certificate_san: "{{ selfsign_certificate_cn }}"

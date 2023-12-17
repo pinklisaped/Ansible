@@ -1,0 +1,12 @@
+server {
+    listen 80;
+    server_name {{ domain_name }};
+    root {{ lets_encrypt_site_directory }};
+    location ~ /.well-known {
+        root {{ lets_encrypt_acme_challenge_directory }};
+        allow all;
+    }
+    if ($uri !~ /.well-known){
+        return 301 https://$host$request_uri;
+    }
+}
