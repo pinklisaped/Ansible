@@ -1,0 +1,23 @@
+---
+- name: IPSec server install with selfsign certificate
+  hosts: all
+  become: true
+  roles:
+    - selfsign_certificate
+    - ipsec_server
+  pre_tasks:
+    - name: Ufw allow app ssh
+      community.general.ufw:
+        rule: allow
+        name: OpenSSH
+        comment: OpenSSH allow app
+  handlers:
+    - name: Restart ipsec
+      ansible.builtin.systemd_service:
+        name: strongswan-starter
+        state: restarted
+  vars:
+    selfsign_certificate_ca_key: /etc/ipsec.d/private/ca.key
+    selfsign_certificate_ca_path: /etc/ipsec.d/cacerts/ca.pem
+    selfsign_certificate_key: /etc/ipsec.d/private/server-key.pem
+    selfsign_certificate_path: /etc/ipsec.d/certs/server-cert.crt
