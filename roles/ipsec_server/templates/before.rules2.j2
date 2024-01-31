@@ -1,0 +1,2 @@
+-A ufw-before-forward --match policy --pol ipsec --dir in --proto esp -s {{ ipsec_server_rightsourceip }} -j ACCEPT
+-A ufw-before-forward --match policy --pol ipsec --dir out --proto esp -d {{ ipsec_server_rightsourceip }} -j ACCEPT

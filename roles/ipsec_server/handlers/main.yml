@@ -1,0 +1,9 @@
+---
+# handlers file for roles/ipsec_server
+- name: UFW disable
+  community.general.ufw:
+    state: disabled
+
+- name: UFW enable
+  community.general.ufw:
+    state: enabled
