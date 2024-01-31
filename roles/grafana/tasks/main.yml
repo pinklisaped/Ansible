@@ -1,0 +1,6 @@
+---
+- name: Grafana install
+  ansible.builtin.import_tasks: grafana_install.yml
+
+- name: Grafana ufw allow
+  ansible.builtin.import_tasks: grafana_install.yml
