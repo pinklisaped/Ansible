@@ -1,0 +1,10 @@
+hosts
+.vscode/*
+
+roles/node_exporter
+roles/prometheus
+roles/user_create/files/auth_key.pub
+
+playbooks/test.yml
+
+*.pem
