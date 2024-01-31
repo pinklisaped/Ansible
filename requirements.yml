@@ -1,0 +1,9 @@
+# Node-exporter
+- src: https://github.com/cloudalchemy/ansible-node-exporter
+  name: node_exporter
+  version: master
+
+# Prometheus
+- src: https://github.com/cloudalchemy/ansible-prometheus
+  name: prometheus
+  version: master
