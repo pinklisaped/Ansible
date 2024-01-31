@@ -1,0 +1,12 @@
+---
+- name: Node-exporter installations
+  hosts: all
+  become: true
+  roles:
+    - node_exporter
+  pre_tasks:
+    - name: Ufw allow node exporter
+      community.general.ufw:
+        rule: allow
+        port: 9100
+        src: 10.0.0.0/8

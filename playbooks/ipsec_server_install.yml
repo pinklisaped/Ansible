@@ -1,0 +1,36 @@
+---
+- name: IPSec server install with Let`s Encrypt certificate
+  hosts: all
+  become: true
+  roles:
+    - ipsec_server
+    - lets_encrypt
+  pre_tasks:
+    - name: Ufw allow app ssh
+      community.general.ufw:
+        rule: allow
+        name: OpenSSH
+        comment: OpenSSH allow app
+  post_tasks:
+    - name: Copy certs
+      ansible.builtin.copy:
+        remote_src: true
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        mode: "0500"
+      loop:
+        - { src: "/etc/letsencrypt/certs/chain_{{ domain_name }}.crt", dest: /etc/ipsec.d/cacerts/ca.crt }
+        - { src: "/etc/letsencrypt/certs/{{ domain_name }}.crt", dest: /etc/ipsec.d/certs/cert.crt }
+        - { src: "/etc/letsencrypt/certs/fullchain_{{ domain_name }}", dest: /etc/ipsec.d/certs/server-cert.crt }
+        - { src: "/etc/letsencrypt/keys/{{ domain_name }}.key", dest: /etc/ipsec.d/private/server-key.pem }
+      notify:
+        - Restart ipsec
+  handlers:
+    - name: Restart ipsec
+      ansible.builtin.systemd_service:
+        name: strongswan-starter
+        state: restarted
+  vars:
+    domain_name: # press domain here
+    lets_encrypt_acme_email: # press email here
+    ipsec_server_leftid: '"CN={{ domain_name }}"'
