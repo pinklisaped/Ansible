@@ -1,0 +1,36 @@
+---
+- name: Install packets
+  ansible.builtin.apt:
+    name: fail2ban
+    state: present
+    update_cache: true
+
+- name: Copy fail2ban settings default.conf
+  ansible.builtin.template:
+    src: external_fail2ban.conf.j2
+    dest: /etc/fail2ban/jail.d/default.conf
+    mode: "0600"
+    owner: root
+    group: root
+  notify:
+    - Restart fail2ban
+
+- name: Copy fail2ban settings ssh .conf
+  ansible.builtin.template:
+    src: external_fail2ban_ssh.conf.j2
+    dest: /etc/fail2ban/jail.d/fail2ban_ssh.conf
+    mode: "0600"
+    owner: root
+    group: root
+  notify:
+    - Restart fail2ban
+
+- name: Copy ssh settings .conf
+  ansible.builtin.template:
+    src: external_ssh.conf.j2
+    dest: /etc/ssh/sshd_config.d/external_ssh.conf
+    mode: "0600"
+    owner: root
+    group: root
+  notify:
+    - Restart ssh
