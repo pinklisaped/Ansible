@@ -1,0 +1,10 @@
+---
+- name: Create ansible user and add key
+  hosts: all
+  become: true
+  roles:
+    - user_create
+  vars:
+    uusername: ansible
+    upublic_key: ~/.ssh/ansible.pub
+    usudo: true
