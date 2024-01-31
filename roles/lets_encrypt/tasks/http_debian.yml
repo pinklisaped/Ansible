@@ -1,0 +1,19 @@
+---
+- name: Install nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+  notify:
+    - Remove defaults nginx
+
+- name: Install certbot
+  ansible.builtin.apt:
+    name: certbot
+    state: present
+
+- name: Open ufw port
+  community.general.ufw:
+    rule: allow
+    port: 80
+    proto: tcp
+    comment: "Open let`s encrypt checking port"
