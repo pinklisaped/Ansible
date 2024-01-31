@@ -1,0 +1,13 @@
+---
+# handlers file for ssh_configure
+- name: Restart ssh
+  ansible.builtin.systemd_service:
+    name: sshd
+    state: restarted
+
+- name: Restart fail2ban
+  ansible.builtin.systemd_service:
+    name: fail2ban
+    state: restarted
+    enabled: true
+    daemon_reload: true

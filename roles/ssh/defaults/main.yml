@@ -1,0 +1,10 @@
+---
+# defaults file for ssh_configure
+ssh_ignore_rhosts: true
+ssh_password_authentication: false
+ssh_permit_root_login: false
+ssh_disable_forwarding: true
+ssh_failban_maxretry: 5
+ssh_failban_findtime: 60
+ssh_failban_bantime: 600
+ssh_failban_ignoreip: 127.0.0.1/8 10.0.0.0/8 192.0.0.0/8

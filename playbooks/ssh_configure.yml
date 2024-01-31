@@ -1,0 +1,6 @@
+---
+- name: SSH configurations
+  hosts: all
+  become: true
+  roles:
+    - ssh
