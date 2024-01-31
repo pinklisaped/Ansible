@@ -1,0 +1,59 @@
+---
+# tasks file for roles/lets_encrypt
+# based on https://www.digitalocean.com/community/tutorials/how-to-acquire-a-let-s-encrypt-certificate-using-ansible-on-ubuntu-18-04
+- name: Create required directories in /etc/letsencrypt
+  ansible.builtin.file:
+    path: "/etc/letsencrypt/{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+  with_items:
+    - account
+    - certs
+    - csrs
+    - keys
+
+- name: Create .well-known/acme-challenge directory
+  ansible.builtin.file:
+    path: "{{ lets_encrypt_acme_challenge_directory }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Generate a Let's Encrypt account key
+  community.crypto.openssl_privatekey:
+    path: "{{ lets_encrypt_account_key }}"
+    size: 4096
+
+- name: Generate Let's Encrypt private key
+  community.crypto.openssl_privatekey:
+    path: "/etc/letsencrypt/keys/{{ domain_name }}.key"
+    size: 4096
+
+- name: Generate Let's Encrypt CSR
+  community.crypto.openssl_csr:
+    path: "/etc/letsencrypt/csrs/{{ domain_name }}.csr"
+    privatekey_path: "/etc/letsencrypt/keys/{{ domain_name }}.key"
+    country_name: EU
+    organization_name: Custom website
+    email_address: "{{ lets_encrypt_acme_email }}"
+    common_name: "{{ domain_name }}"
+
+- name: Import OS specific tasks
+  ansible.builtin.import_tasks: "http.yml"
+  when: lets_encrypt_acme_challenge_type == "http-01"
+
+- name: Copy renew script
+  ansible.builtin.template:
+    src: letsencrypt_renew.sh.j2
+    dest: /etc/letsencrypt/letsencrypt_renew.sh
+    mode: '0500'
+
+- name: Cron renew certificate Let's Encrypt
+  ansible.builtin.cron:
+    name: Renew certificate Let's Encrypt
+    special_time: weekly
+    job: /etc/letsencrypt/letsencrypt_renew.sh
+    user: root

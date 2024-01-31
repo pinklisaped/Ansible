@@ -1,0 +1,61 @@
+---
+- name: Import OS specific tasks
+  ansible.builtin.include_tasks: "http_{{ ansible_os_family | lower }}.yml"
+
+- name: Configure nginx
+  ansible.builtin.template:
+    src: lets_encrypt.conf.j2
+    dest: /etc/nginx/sites-available/lets_encrypt.conf
+    mode: '0644'
+
+- name: Symlink for nginx Configure
+  ansible.builtin.file:
+    state: link
+    src: /etc/nginx/sites-available/lets_encrypt.conf
+    dest: /etc/nginx/sites-enabled/lets_encrypt.conf
+    mode: '0644'
+  notify:
+    - Letsencrypt nginx reload
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+
+- name: Begin Let's Encrypt challenges
+  community.crypto.acme_certificate:
+    acme_directory: "{{ lets_encrypt_acme_directory }}"
+    acme_version: "{{ lets_encrypt_acme_version }}"
+    account_key_src: "{{ lets_encrypt_account_key }}"
+    account_email: "{{ lets_encrypt_acme_email }}"
+    terms_agreed: true
+    challenge: "{{ lets_encrypt_acme_challenge_type }}"
+    csr: "{{ lets_encrypt_csrs_dir }}/{{ domain_name }}.csr"
+    dest: "{{ lets_encrypt_certs_dir }}/{{ domain_name }}.crt"
+    fullchain_dest: "{{ lets_encrypt_certs_dir }}/fullchain_{{ domain_name }}.crt"
+    remaining_days: 91
+  register: acme_challenge_your_domain
+
+- name: Challenge Let`s Encrypt certificate
+  when: acme_challenge_your_domain.challenge_data|map('length')|sum > 0
+  block:
+    - name: Implement http-01 challenge files
+      ansible.builtin.copy:
+        content: "{{ acme_challenge_your_domain['challenge_data'][item]['http-01']['resource_value'] }}"
+        dest: "/var/www/html/{{ acme_challenge_your_domain['challenge_data'][item]['http-01']['resource'] }}"
+        owner: root
+        group: root
+        mode: '0644'
+      with_items:
+        - "{{ domain_name }}"
+
+    - name: Complete Let's Encrypt challenges
+      community.crypto.acme_certificate:
+        acme_directory: "{{ lets_encrypt_acme_directory }}"
+        acme_version: "{{ lets_encrypt_acme_version }}"
+        account_key_src: "{{ lets_encrypt_account_key }}"
+        account_email: "{{ lets_encrypt_acme_email }}"
+        challenge: "{{ lets_encrypt_acme_challenge_type }}"
+        csr: "{{ lets_encrypt_csrs_dir }}/{{ domain_name }}.csr"
+        dest: "{{ lets_encrypt_certs_dir }}/{{ domain_name }}.crt"
+        chain_dest: "{{ lets_encrypt_certs_dir }}/chain_{{ domain_name }}.crt"
+        fullchain_dest: "{{ lets_encrypt_certs_dir }}/fullchain_{{ domain_name }}"
+        data: "{{ acme_challenge_your_domain }}"
