@@ -3,6 +3,7 @@ server {
     server_name {{ domain_name }};
     root {{ lets_encrypt_site_directory }};
     location ~ /.well-known {
+        rewrite /.well-known/acme-challenge/(.*) /$1 break;
         root {{ lets_encrypt_acme_challenge_directory }};
         allow all;
     }
