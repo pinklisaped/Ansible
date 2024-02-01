@@ -2,6 +2,7 @@ hosts
 .vscode/*
 *.code-workspace
 
+collections/*
 roles/node_exporter
 roles/prometheus
 roles/user_create/files/auth_key.pub
