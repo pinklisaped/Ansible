@@ -1,0 +1,6 @@
+---
+- name: Prometheus server installations
+  hosts: prometheus_server
+  become: true
+  roles:
+    - prometheus.prometheus.prometheus
