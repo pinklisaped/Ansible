@@ -7,6 +7,8 @@
     src: lets_encrypt.conf.j2
     dest: /etc/nginx/sites-available/lets_encrypt.conf
     mode: '0644'
+  notify:
+    - Letsencrypt nginx reload
 
 - name: Symlink for nginx Configure
   ansible.builtin.file:
@@ -20,42 +22,66 @@
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers
 
+- name: Create .well-known/acme-challenge directory
+  ansible.builtin.file:
+    path: "{{ lets_encrypt_acme_challenge_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0655'
+
 - name: Begin Let's Encrypt challenges
   community.crypto.acme_certificate:
-    acme_directory: "{{ lets_encrypt_acme_directory }}"
-    acme_version: "{{ lets_encrypt_acme_version }}"
-    account_key_src: "{{ lets_encrypt_account_key }}"
-    account_email: "{{ lets_encrypt_acme_email }}"
     terms_agreed: true
+    acme_directory: "{{ lets_encrypt_acme_dir }}"
+    acme_version: "{{ lets_encrypt_acme_version }}"
+    account_key_src: "{{ lets_encrypt_account_key_path }}"
+    account_email: "{{ lets_encrypt_acme_email }}"
     challenge: "{{ lets_encrypt_acme_challenge_type }}"
-    csr: "{{ lets_encrypt_csrs_dir }}/{{ domain_name }}.csr"
-    dest: "{{ lets_encrypt_certs_dir }}/{{ domain_name }}.crt"
-    fullchain_dest: "{{ lets_encrypt_certs_dir }}/fullchain_{{ domain_name }}.crt"
+    csr: "{{ lets_encrypt_csr_path }}"
+    dest: "{{ lets_encrypt_certs_dir }}/cert.crt"
+    chain_dest: "{{ lets_encrypt_certs_dir }}/chain.crt"
+    fullchain_dest: "{{ lets_encrypt_certs_dir }}/fullchain.pem"
     remaining_days: 91
   register: acme_challenge_your_domain
+
+- name: Debug msg
+  ansible.builtin.debug:
+    msg: "{{ acme_challenge_your_domain }}"
 
 - name: Challenge Let`s Encrypt certificate
   when: acme_challenge_your_domain.challenge_data|map('length')|sum > 0
   block:
     - name: Implement http-01 challenge files
       ansible.builtin.copy:
-        content: "{{ acme_challenge_your_domain['challenge_data'][item]['http-01']['resource_value'] }}"
-        dest: "/var/www/html/{{ acme_challenge_your_domain['challenge_data'][item]['http-01']['resource'] }}"
+        content: "{{ acme_challenge_your_domain['challenge_data'][domain_name]['http-01']['resource_value'] }}"
+        dest: "{{ lets_encrypt_site_dir }}/{{ acme_challenge_your_domain['challenge_data'][domain_name]['http-01']['resource'] }}"
         owner: root
         group: root
         mode: '0644'
-      with_items:
-        - "{{ domain_name }}"
 
     - name: Complete Let's Encrypt challenges
       community.crypto.acme_certificate:
-        acme_directory: "{{ lets_encrypt_acme_directory }}"
+        acme_directory: "{{ lets_encrypt_acme_dir }}"
         acme_version: "{{ lets_encrypt_acme_version }}"
-        account_key_src: "{{ lets_encrypt_account_key }}"
+        account_key_src: "{{ lets_encrypt_account_key_path }}"
         account_email: "{{ lets_encrypt_acme_email }}"
         challenge: "{{ lets_encrypt_acme_challenge_type }}"
-        csr: "{{ lets_encrypt_csrs_dir }}/{{ domain_name }}.csr"
-        dest: "{{ lets_encrypt_certs_dir }}/{{ domain_name }}.crt"
-        chain_dest: "{{ lets_encrypt_certs_dir }}/chain_{{ domain_name }}.crt"
-        fullchain_dest: "{{ lets_encrypt_certs_dir }}/fullchain_{{ domain_name }}"
+        csr: "{{ lets_encrypt_csr_path }}"
+        dest: "{{ lets_encrypt_certs_dir }}/cert.crt"
+        chain_dest: "{{ lets_encrypt_certs_dir }}/chain.crt"
+        fullchain_dest: "{{ lets_encrypt_certs_dir }}/fullchain.pem"
         data: "{{ acme_challenge_your_domain }}"
+
+- name: Copy renew script
+  ansible.builtin.template:
+    src: letsencrypt_renew.sh.j2
+    dest: "{{ lets_encrypt_dir }}/letsencrypt_renew.sh"
+    mode: '0500'
+
+- name: Cron renew certificate Let's Encrypt
+  ansible.builtin.cron:
+    name: Renew certificate Let's Encrypt
+    special_time: monthly
+    job: "{{ lets_encrypt_dir }}/letsencrypt_renew.sh"
+    user: root

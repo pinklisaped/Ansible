@@ -6,11 +6,6 @@
   notify:
     - Remove defaults nginx
 
-- name: Install certbot
-  ansible.builtin.apt:
-    name: certbot
-    state: present
-
 - name: Open ufw port
   community.general.ufw:
     rule: allow
