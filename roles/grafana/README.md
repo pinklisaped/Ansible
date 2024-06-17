@@ -16,6 +16,7 @@ Role Variables
 grafana_port: 3000
 grafana_version: latest
 ufw_allow_addr - not default, example 10.0.0.0/8
+grafana_remove_repo: false - If your country doesn`t have access for https://apt.grafana.com/gpg.key use "true"
 ```
 
 
