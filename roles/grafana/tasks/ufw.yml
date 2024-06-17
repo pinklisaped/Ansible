@@ -1,8 +1,0 @@
-- name: Ufw allow ports
-  community.general.ufw:
-    rule: allow
-    port: "{{ grafana_port }}"
-    proto: tcp
-    src: "{{ ufw_allow_addr }}"
-    comment: Grafana port
-  when: ufw_allow_addr is defined

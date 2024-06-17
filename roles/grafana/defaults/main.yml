@@ -1,3 +1,4 @@
 ---
 grafana_port: 3000
 grafana_version: latest
+grafana_remove_repo: false
