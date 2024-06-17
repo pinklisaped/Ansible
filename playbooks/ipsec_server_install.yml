@@ -17,14 +17,22 @@
         remote_src: true
         src: "{{ item.src }}"
         dest: "{{ item.dest }}"
-        mode: "0500"
+        mode: '0500'
       loop:
-        - { src: "/etc/letsencrypt/certs/chain_{{ domain_name }}.crt", dest: /etc/ipsec.d/cacerts/ca.crt }
-        - { src: "/etc/letsencrypt/certs/{{ domain_name }}.crt", dest: /etc/ipsec.d/certs/cert.crt }
-        - { src: "/etc/letsencrypt/certs/fullchain_{{ domain_name }}", dest: /etc/ipsec.d/certs/server-cert.crt }
-        - { src: "/etc/letsencrypt/keys/{{ domain_name }}.key", dest: /etc/ipsec.d/private/server-key.pem }
+        - { src: "{{ lets_encrypt_certs_dir }}/chain.crt", dest: /etc/ipsec.d/cacerts/ca.crt }
+        - { src: "{{ lets_encrypt_certs_dir }}/fullchain.pem", dest: /etc/ipsec.d/certs/fullchain.pem }
+        - { src: "{{ lets_encrypt_key_path }}", dest: /etc/ipsec.d/private/server-key.pem }
       notify:
         - Restart ipsec
+
+    - name: Update file letsencrypt_renew.sh
+      ansible.builtin.blockinfile:
+        path: "{{ lets_encrypt_dir }}/letsencrypt_renew.sh"
+        block: |
+          cp {{ lets_encrypt_certs_dir }}/fullchain.pem /etc/ipsec.d/certs/fullchain.pem
+          cp {{ lets_encrypt_certs_dir }}/chain.crt /etc/ipsec.d/cacerts/ca.crt
+          ipsec rereadall
+        marker: "# {mark} ANSIBLE MANAGED BLOCK IPSEC"
   handlers:
     - name: Restart ipsec
       ansible.builtin.systemd_service:
@@ -34,3 +42,6 @@
     domain_name: # press domain here
     lets_encrypt_acme_email: # press email here
     ipsec_server_leftid: '"CN={{ domain_name }}"'
+    lets_encrypt_dir: /etc/letsencrypt
+    lets_encrypt_certs_dir: "{{ lets_encrypt_dir }}/live/{{ domain_name }}"
+    lets_encrypt_key_path: "{{ lets_encrypt_dir }}/keys/{{ domain_name }}.key"

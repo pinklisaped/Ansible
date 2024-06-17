@@ -16,7 +16,7 @@ conn ikev2-vpn
     rekey=no
     left=%any
     leftid={{ ipsec_server_leftid }}
-    leftcert=server-cert.crt
+    leftcert=fullchain.pem
     leftsendcert=always
     leftsubnet={{ ipsec_server_leftsubnet }}
     right=%any
