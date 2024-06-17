@@ -3,7 +3,7 @@
   hosts: all
   become: true
   roles:
-    - node_exporter
+    - prometheus.prometheus.node_exporter
   pre_tasks:
     - name: Ufw allow node exporter
       community.general.ufw:
