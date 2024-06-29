@@ -1,0 +1,51 @@
+#! /usr/bin/env bash
+
+# Basic info
+HOSTNAME=`uname -n`
+KERNEL=`uname -r`
+OS=`cat /etc/*-release | grep "PRETTY_NAME" | sed 's/PRETTY_NAME=//g' | sed 's/"//g'`
+UPTIME=`uptime -p`
+UPTIME_STARTED=`uptime -s`
+ROOT_SPACE=`df -P / | awk 'NR==2 {print int($3 / 1024 / 1024)}'`
+ROOT_SPACE_ALL=`df -P / | awk 'NR==2 {print int($2 / 1024 / 1024)}'`
+CPU=`lscpu | grep -i "model name" | cut -d ' ' -f3- | xargs`
+CPU_CORES=`lscpu | grep -i "cpu(s)" | awk '{print $2}' | head -n1`
+
+# System load
+MEMORY1=`free -t -m | grep Total | awk '{print $3;}'`
+MEMORY2=`free -t -m | grep "Mem" | awk '{print $2;}'`
+CPU_PERSENT=$(top -bn1 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{print 100 - $1}')
+LOAD1=`cat /proc/loadavg | awk {'print $1'}`
+LOAD5=`cat /proc/loadavg | awk {'print $2'}`
+LOAD15=`cat /proc/loadavg | awk {'print $3'}`
+
+# Users
+PPID1=`cat /proc/$PPID/status | grep PPid | awk '{ print $2 }'`
+PPID2=`cat /proc/$PPID1/status | grep PPid | awk '{ print $2 }'`
+{% if ansible_os_family.lower() == "redhat" %}
+USERNAME=`whoami`
+{% else %}
+USERNAME=`ps -x | grep $PPID2 | awk '{ print $6 }' |  sed "s/[[:digit:].-]//g"`
+{% endif %}
+USERS=`who -uH | sed 's/^/   /'`
+
+echo -e "
+===== \033[33mSystem info\033[0m ==============================================================
+ - Hostname......: $HOSTNAME
+ - OS Name.......: $OS
+ - Kernel........: $KERNEL
+ - CPU...........: $CPU_CORES CPU $CPU
+ - Uptime........: $UPTIME / started at $UPTIME_STARTED
+===== \033[33mUsages\033[0m ===================================================================
+ - CPU usage.....: $CPU_PERSENT% ... LA $LOAD1, $LOAD5, $LOAD15 (1, 5, 15 min)
+ - Memory used...: $((MEMORY1*100/MEMORY2))% ... $MEMORY1 MB / $MEMORY2 MB
+   - Swap in use.: `free -m | tail -n 1 | awk '{print $3}'` MB
+ - Root Space....: $((ROOT_SPACE*100/ROOT_SPACE_ALL))% ... $ROOT_SPACE Gb / $ROOT_SPACE_ALL Gb
+{% if motd_active_users %}
+===== \033[33mLogged as [\033[96m$USERNAME\033[33m], all:\033[0m ================================================
+$USERS
+{% endif %}
+{% if motd_login_log %}
+===== \033[33mLast log in\033[0m ==============================================================
+`last -Fi | head -n 5 | sed 's/^/   /'`
+{% endif %}"

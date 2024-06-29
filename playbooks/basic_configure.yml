@@ -6,6 +6,7 @@
     - user_create
     - prometheus.prometheus.node_exporter
     - ssh
+    - motd
   pre_tasks:
     - name: Ufw allow app ssh
       community.general.ufw:

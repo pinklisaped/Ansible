@@ -1,0 +1,6 @@
+---
+# handlers file for roles/motd
+- name: Restart sshd
+  ansible.builtin.systemd:
+    name: sshd
+    state: restarted
