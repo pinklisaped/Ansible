@@ -1,0 +1,27 @@
+- name: Create directory
+  ansible.builtin.file:
+    state: directory
+    path: '/etc/motd.d'
+    mode: '0755'
+
+- name: Copy dynamic motd file
+  ansible.builtin.template:
+    src: summary.j2
+    dest: /etc/motd.d/10-summary
+    mode: '0755'
+
+- name: Set data to /etc/profile
+  ansible.builtin.blockinfile:
+    dest: /etc/profile
+    block: >
+      if [ $LOGNAME != "root" ]; then
+        /etc/motd.d/10-summary
+      fi
+
+- name: Disable sshd PrintMotd
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    search_string: 'PrintMotd'
+    line: 'PrintMotd no'
+  notify:
+    - Restart sshd

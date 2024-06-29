@@ -1,0 +1,16 @@
+- name: Copy dynamic motd file
+  ansible.builtin.template:
+    src: summary.j2
+    dest: /etc/update-motd.d/10-summary
+    mode: '0755'
+
+- name: Drop default files
+  ansible.builtin.file:
+    state: absent
+    dest: "/etc/update-motd.d/{{ item }}"
+  loop:
+    - 00-header
+    - 10-help-text
+    - 50-motd-news
+    - 50-landscape-sysinfo
+    - 88-esm-announce
