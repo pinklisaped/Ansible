@@ -2,3 +2,5 @@
 collections:
   # Install prometheus collection
   - name: prometheus.prometheus
+  - name: ansible.posix
+  - name: community.crypto
