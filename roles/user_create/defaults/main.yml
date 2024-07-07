@@ -1,6 +1,8 @@
 ---
 # defaults file for user_create
-uusername: ansible
-usudo: true
-unopasswd: "{{ usudo }}"
-ushell: /bin/bash
+user_create_system: false
+user_create_name: ansible
+user_create_sudo: true
+user_create_sudo_nopasswd: "{{ user_create_sudo }}"
+user_create_shell: "{{ '/bin/bash' if user_create_system == false else '/usr/sbin/nologin' }}"
+user_create_home: "{{ user_create_system == false | bool }}"

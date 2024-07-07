@@ -1,43 +1,45 @@
 ---
-- name: "Create user {{ uusername }} with sudo = {{ usudo }} with pass"
+- name: "Create user {{ user_create_name }} with sudo = {{ user_create_sudo }} with pass"
   ansible.builtin.user:
-    name: "{{ uusername }}"
-    password: "{{ upassword | password_hash('sha512') }}"
+    name: "{{ user_create_name }}"
+    password: "{{ user_create_password | password_hash('sha512') }}"
     groups: sudo
-    append: "{{ usudo }}"
-    createhome: "{{ upublic_key is defined }}"
-    shell: /bin/bash
-  when: upassword is defined
+    append: "{{ user_create_sudo }}"
+    create_home: "{{ user_create_home }}"
+    shell: "{{ user_create_shell }}"
+    system: "{{ user_create_system }}"
+  when: user_create_password is defined
 
-- name: "Create user {{ uusername }} with sudo = {{ usudo }} without pass"
+- name: "Create user {{ user_create_name }} with sudo = {{ user_create_sudo }} without pass"
   ansible.builtin.user:
-    name: "{{ uusername }}"
+    name: "{{ user_create_name }}"
     groups: sudo
-    append: "{{ usudo }}"
-    createhome: true
-    shell: /bin/bash
-  when: upassword is not defined
+    append: "{{ user_create_sudo }}"
+    create_home: "{{ user_create_home }}"
+    shell: "{{ user_create_shell }}"
+    system: "{{ user_create_system }}"
+  when: user_create_password is not defined
 
 - name: Create dir
   ansible.builtin.file:
-    path: /home/{{ uusername }}/.ssh
+    path: /home/{{ user_create_name }}/.ssh
     state: directory
     mode: "0700"
-    owner: "{{ uusername }}"
-    group: "{{ uusername }}"
-  when: upublic_key is defined
+    owner: "{{ user_create_name }}"
+    group: "{{ user_create_name }}"
+  when: user_create_public_key
 
 - name: Set key from file
   ansible.posix.authorized_key:
-    user: "{{ uusername }}"
+    user: "{{ user_create_name }}"
     state: present
-    key: "{{ lookup('file', upublic_key) }}"
-  when: upublic_key is defined
+    key: "{{ lookup('file', user_create_public_key) }}"
+  when: user_create_public_key
 
 - name: Set sudoers nopasswd
   community.general.sudoers:
-    name: "{{ uusername }}-user"
-    user: "{{ uusername }}"
+    name: "{{ user_create_name }}-user"
+    user: "{{ user_create_name }}"
     commands: ALL
-    nopassword: "{{ unopasswd }}"
-  when: usudo
+    nopassword: "{{ user_create_sudo_nopasswd }}"
+  when: user_create_sudo
