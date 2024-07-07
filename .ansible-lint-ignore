@@ -1,0 +1,3 @@
+# This file contains ignores rule violations for ansible-lint
+roles/user_create/tasks/main.yml name[template]
+collections/ syntax-check

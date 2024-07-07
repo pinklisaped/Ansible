@@ -1,3 +1,4 @@
+---
 - name: Copy dynamic motd file
   ansible.builtin.template:
     src: summary.j2
