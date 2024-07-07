@@ -5,6 +5,6 @@
   roles:
     - user_create
   vars:
-    uusername: ansible
-    upublic_key: ~/.ssh/ansible.pub
-    usudo: true
+    user_create_name: ansible
+    user_create_public_key: ~/.ssh/ansible.pub
+    user_create_sudo: true

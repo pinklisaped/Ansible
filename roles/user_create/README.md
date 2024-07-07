@@ -6,30 +6,32 @@ The role creates user.
 Requirements
 ------------
 
+- Rocky 9
 - Ubuntu 20.04
 - Ubuntu 22.04
+- Ubuntu 24.04
 
 Role Variables
 --------------
 
 ```
 # Username
-uusername: ansible, ansible as default
+user_create_name: ansible, ansible as default
 
 # User password
-upassword: 1234, doesn`t have default
+user_create_password: 1234, doesn`t have default
 
 # Sudo permissions
-usudo: True, True as default
+user_create_sudo: True, True as default
 
 # Ask sudo password
-unopasswd: False, {{ usudo }} as default
+user_create_sudo_nopasswd: False, {{ user_create_sudo }} as default
 
 # User shell
-ushell: /bin/bash, bin/bash as default
+user_create_shell: /bin/bash, bin/bash as default
 
 # Public key path
-upublic_key: ~/.ssh/id_rsa.pub, doesn`t have default
+user_create_public_key: ~/.ssh/id_rsa.pub, doesn`t have default
 ```
 
 
@@ -40,7 +42,7 @@ Including an example of how to use your role (for instance, with variables passe
 
     - hosts: servers
       roles:
-         - { role: grafana, uusername: someuser, upassword: 1234, usudo: False, ushell: /bin/sh, upublic_key: ~/.ssh/id_rsa.pub }
+         - { role: grafana, user_create_name: someuser, user_create_password: 1234, user_create_sudo: False, user_create_shell: /bin/sh, user_create_public_key: ~/.ssh/id_rsa.pub }
 
 License
 -------
