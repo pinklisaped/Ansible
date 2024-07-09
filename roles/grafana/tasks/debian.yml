@@ -1,41 +1,57 @@
 ---
 - name: Add grafana repos
+  tags:
+    - install_packages
   block:
-    - name: Grafanarepo | no apt key
+    - name: Grafanarepo download apt key
       ansible.builtin.get_url:
         url: https://apt.grafana.com/gpg.key
         dest: /etc/apt/trusted.gpg.d/grafana.key
         mode: '0644'
         use_proxy: true
 
-    - name: Grafanarepo | apt source
+    - name: Grafanarepo create apt source
       ansible.builtin.apt_repository:
         repo: deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/grafana.key] https://apt.grafana.com stable main
         state: present
         filename: grafana
-        update_cache: false
 
-- name: Update package repositories and install grafana
-  ansible.builtin.apt:
-    name: grafana
-    state: "{{ grafana_version }}"
-    update_cache: true
+    - name: Update package repositories and install grafana
+      ansible.builtin.apt:
+        name: grafana
+        state: "{{ grafana_version }}"
+        update_cache: true
+
+    - name: Grafanarepo remove apt source
+      ansible.builtin.apt_repository:
+        repo: deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/grafana.key] https://apt.grafana.com stable main
+        state: absent
+        filename: grafana
+      when: grafana_remove_repo == true
+  rescue:
+    - name: Remove Grafana GPG key in case of error
+      ansible.builtin.file:
+        path: /etc/apt/trusted.gpg.d/grafana.key
+        state: absent
+
+    - name: Remove Grafana repository in case of error
+      ansible.builtin.apt_repository:
+        filename: grafana
+        state: absent
+
+    - name: Fail the role
+      ansible.builtin.fail:
+        msg: Failed to add Grafana repository, repository and GPG key have been removed. Try to use proxy.
 
 - name: Copy settings
   ansible.builtin.template:
     src: grafana.ini.j2
     dest: /etc/grafana/grafana.ini
-    mode: "0644"
+    mode: '0644'
     owner: root
     group: root
   notify:
     - Restart grafana
-
-- name: Grafanarepo | apt source remove
-  ansible.builtin.apt_repository:
-    repo: deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/grafana.key] https://apt.grafana.com stable main
-    state: absent
-    filename: grafana
 
 - name: Ufw allow ports
   community.general.ufw:
@@ -45,3 +61,5 @@
     src: "{{ ufw_allow_addr }}"
     comment: Grafana port
   when: ufw_allow_addr is defined
+  tags:
+    - firewall
