@@ -18,6 +18,6 @@
         state: restarted
   vars:
     selfsign_certificate_ca_key: /etc/ipsec.d/private/ca.key
-    selfsign_certificate_ca_path: /etc/ipsec.d/cacerts/ca.pem
+    selfsign_certificate_ca_path: /etc/ipsec.d/cacerts/ca.crt
     selfsign_certificate_key: /etc/ipsec.d/private/server-key.pem
-    selfsign_certificate_path: /etc/ipsec.d/certs/server-cert.crt
+    selfsign_certificate_path: /etc/ipsec.d/certs/fullchain.pem
