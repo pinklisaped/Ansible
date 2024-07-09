@@ -8,23 +8,28 @@
     - ssh
     - motd
   pre_tasks:
-    - name: Ufw allow app ssh
-      community.general.ufw:
-        rule: allow
-        name: OpenSSH
-        comment: OpenSSH allow app
+    - name: Firewall block
+      tags:
+        - firewall
+      block:
+        - name: Ufw allow app ssh
+          community.general.ufw:
+            rule: allow
+            name: OpenSSH
+            comment: OpenSSH allow app
 
-    - name: Ufw allow node exporter
-      community.general.ufw:
-        rule: allow
-        port: 9100
-        src: 10.0.0.0/8
+        - name: Ufw enable and deny incoming
+          community.general.ufw:
+            state: enabled
+            default: deny
+            direction: incoming
 
-    - name: Ufw enable and deny incoming
-      community.general.ufw:
-        state: enabled
-        default: deny
-        direction: incoming
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+      when: ansible_os_family | lower == 'debian'
+      tags:
+        - install_packages
   vars:
     user_create_name: ansible
     user_create_public_key: ~/.ssh/ansible.pub
