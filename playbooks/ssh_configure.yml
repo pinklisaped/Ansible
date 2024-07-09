@@ -2,5 +2,12 @@
 - name: SSH configurations
   hosts: all
   become: true
+  pre_tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+      when: ansible_os_family | lower == 'debian'
+      tags:
+        - install_packages
   roles:
     - ssh
