@@ -24,7 +24,7 @@
   ansible.builtin.file:
     path: /home/{{ user_create_name }}/.ssh
     state: directory
-    mode: "0700"
+    mode: '0700'
     owner: "{{ user_create_name }}"
     group: "{{ user_create_name }}"
   when: user_create_public_key

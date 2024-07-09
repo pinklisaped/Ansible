@@ -5,7 +5,7 @@
       ansible.builtin.get_url:
         url: https://download.docker.com/linux/ubuntu/gpg
         dest: /etc/apt/trusted.gpg.d/docker.asc
-        mode: "0644"
+        mode: '0644'
 
     - name: Dockerrepo | apt source
       ansible.builtin.apt_repository:
