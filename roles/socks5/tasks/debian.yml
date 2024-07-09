@@ -1,0 +1,46 @@
+---
+- name: Install dante-server
+  ansible.builtin.apt:
+    name: dante-server
+  tags:
+    - install_packages
+
+- name: Create log dir
+  ansible.builtin.file:
+    mode: '0644'
+    state: directory
+    dest: "{{ socks5_log_dir }}"
+    owner: root
+    group: root
+
+- name: Fix systemd for log
+  ansible.builtin.blockinfile:
+    block: |
+      ExecReload=/bin/kill -SIGUSR1 $MAINPID
+      Restart=on-failure
+      StandardOutput=append:{{ socks5_log_dir }}/danted.log
+      StandardError=append:{{ socks5_log_dir }}/danted.err.log
+    insertafter: 'DeviceAllow'
+    dest: /lib/systemd/system/danted.service
+  notify:
+    - Reload systemd
+    - Restart danted
+
+- name: Copy config
+  ansible.builtin.template:
+    src: danted.conf.j2
+    dest: /etc/danted.conf
+    mode: '0444'
+    owner: root
+    group: root
+  notify:
+    - Restart danted
+
+- name: Ufw allow socks5 port
+  community.general.ufw:
+    rule: allow
+    port: "{{ socks5_port }}"
+    proto: tcp
+    comment: Socks5 port
+  tags:
+    - firewall
