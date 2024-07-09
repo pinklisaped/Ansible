@@ -1,0 +1,5 @@
+---
+# defaults file for roles/socks5
+socks5_port: 1080
+socks5_loglevel: connect error
+socks5_log_dir: /var/log/danted
