@@ -9,6 +9,8 @@
       - libcharon-extauth-plugins
       - libstrongswan-extra-plugins
     state: present
+  tags:
+    - install_packages
 
 - name: Configure server
   ansible.builtin.template:
@@ -20,3 +22,5 @@
 
 - name: IPSec ufw configuration
   ansible.builtin.import_tasks: ufw.yml
+  tags:
+    - firewall

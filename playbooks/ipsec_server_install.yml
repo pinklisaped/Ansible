@@ -11,6 +11,15 @@
         rule: allow
         name: OpenSSH
         comment: OpenSSH allow app
+      tags:
+        - firewall
+
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+      when: ansible_os_family | lower == 'debian'
+      tags:
+        - install_packages
   post_tasks:
     - name: Copy certs
       ansible.builtin.copy:
