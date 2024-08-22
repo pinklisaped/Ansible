@@ -2,9 +2,9 @@
 - name: Update file /etc/ufw/before.rules
   ansible.builtin.blockinfile:
     path: /etc/ufw/before.rules
-    insertbefore: '\*filter'
+    insertbefore: \*filter
     block: "{{ lookup('ansible.builtin.template', 'templates/before.rules1.j2') }}"
-    marker: "# {mark} ANSIBLE MANAGED BLOCK IPSEC 1"
+    marker: '# {mark} ANSIBLE MANAGED BLOCK IPSEC 1'
   notify:
     - UFW disable
     - UFW enable
@@ -12,9 +12,9 @@
 - name: Update file /etc/ufw/before.rules next
   ansible.builtin.blockinfile:
     path: /etc/ufw/before.rules
-    insertbefore: ':ufw-not-local - \[0:0\]'
+    insertbefore: :ufw-not-local - \[0:0\]
     block: "{{ lookup('ansible.builtin.template', 'templates/before.rules2.j2') }}"
-    marker: "# {mark} ANSIBLE MANAGED BLOCK IPSEC 2"
+    marker: '# {mark} ANSIBLE MANAGED BLOCK IPSEC 2'
   notify:
     - UFW disable
     - UFW enable
@@ -23,7 +23,7 @@
   ansible.builtin.blockinfile:
     path: /etc/ufw/sysctl.conf
     block: "{{ lookup('ansible.builtin.template', 'templates/sysctl.conf.j2') }}"
-    marker: "# {mark} ANSIBLE MANAGED BLOCK IPSEC"
+    marker: '# {mark} ANSIBLE MANAGED BLOCK IPSEC'
   notify:
     - UFW disable
     - UFW enable
