@@ -45,10 +45,6 @@
     remaining_days: 91
   register: acme_challenge_your_domain
 
-- name: Debug msg
-  ansible.builtin.debug:
-    msg: "{{ acme_challenge_your_domain }}"
-
 - name: Challenge Let`s Encrypt certificate
   when: acme_challenge_your_domain.challenge_data|map('length')|sum > 0
   block:
@@ -85,3 +81,5 @@
     special_time: monthly
     job: "{{ lets_encrypt_dir }}/letsencrypt_renew.sh"
     user: root
+  tags:
+    - cron

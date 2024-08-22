@@ -33,8 +33,8 @@
     common_name: "{{ domain_name }}"
 
 - name: Import OS specific tasks
-  ansible.builtin.import_tasks: "http.yml"
-  when: lets_encrypt_acme_challenge_type == "http-01"
+  ansible.builtin.import_tasks: 'http.yml'
+  when: lets_encrypt_acme_challenge_type == 'http-01'
 
 - name: Install tiny_acme
   ansible.builtin.get_url:

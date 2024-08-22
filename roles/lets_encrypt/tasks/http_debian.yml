@@ -2,9 +2,10 @@
 - name: Install nginx
   ansible.builtin.apt:
     name: nginx
-    state: present
   notify:
     - Remove defaults nginx
+  tags:
+    - install_packages
 
 - name: Open ufw port
   community.general.ufw:
@@ -12,3 +13,5 @@
     port: 80
     proto: tcp
     comment: "Open let`s encrypt checking port"
+  tags:
+    - firewall
