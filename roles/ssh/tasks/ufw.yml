@@ -1,0 +1,38 @@
+---
+- name: Add iptables recent rules to ufw-before.rules
+  become: true
+  blockinfile:
+    path: /etc/ufw/before.rules
+    marker_begin: 'SSH dynamic banhammer'
+    insertafter: '# End required lines'
+    block: |
+      -A ufw-before-input -m recent --name botnet_block --rcheck --seconds {{ ssh_fwd_bantime }} -j DROP
+      -A ufw-before-input -p tcp --dport 22 -m conntrack --ctstate NEW -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -m recent --name botnet_block --set -j DROP
+  notify:
+    - Begin UFW restart
+
+- name: Ensure xt_recent options file exists
+  ansible.builtin.copy:
+    dest: /etc/modprobe.d/xt_recent.conf
+    content: |
+      options xt_recent ip_list_tot={{ ssh_fwd_ip_list_tot }} ip_pkt_list_tot=4 ip_list_hash_size=0
+    owner: root
+    group: root
+    mode: '0644'
+  register: xt_recent_file
+
+- name: Reload or reboot xt_recent module
+  when: xt_recent_file.changed
+  block:
+    - name: Try to xt_recent module
+      ansible.builtin.shell: |
+        rmmod xt_recent && modprobe xt_recent
+      register: reload_result
+      failed_when: reload_result.rc > 0
+  rescue:
+    - name: Need reboot
+      ansible.builtin.pause:
+        prompt: Do you want to reboot machine? [yes(y) or enter | no(n)]
+      register: confirm_reboot
+      changed_when: (confirm_reboot.user_input | lower not in ['n', 'no']) | default(false)
+      notify: Reboot machine

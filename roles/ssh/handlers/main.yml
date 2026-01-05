@@ -2,8 +2,17 @@
 # handlers file for ssh_configure
 - name: Restart ssh
   ansible.builtin.systemd_service:
-    name: sshd
+    name: "{{ item }}"
     state: restarted
+    daemon_reexec: true
+  loop: >-
+    {{
+      (['ssh.socket','ssh'] if ssh_status.failed == false else []) +
+      (['sshd.socket','sshd'] if ssh_status.failed == true else [])
+    }}
+  ignore_errors: true
+  async: 30
+  poll: 0
 
 - name: Restart fail2ban
   ansible.builtin.systemd_service:
@@ -11,3 +20,17 @@
     state: restarted
     enabled: true
     daemon_reload: true
+
+- name: Begin UFW restart
+  community.general.ufw:
+    state: disabled
+  notify: End UFW restart
+
+- name: End UFW restart
+  community.general.ufw:
+    state: enabled
+
+- name: Reboot machine
+  ansible.builtin.reboot:
+    msg: Reload module was failed, system is rebooting...
+    reboot_timeout: 600

@@ -1,9 +1,8 @@
 # Ansible generated config
-
-IgnoreRhosts {% if ssh_ignore_rhosts %}yes{% else %}no{% endif %}
-
-PasswordAuthentication {% if ssh_password_authentication %}yes{% else %}no{% endif %}
-
-PermitRootLogin {% if ssh_permit_root_login %}yes{% else %}no{% endif %}
-
-DisableForwarding {% if ssh_disable_forwarding %}yes{% else %}no{% endif %}
+{% if ssh_port != 22 -%}
+Port {{ ssh_port }}
+{% endif -%}
+IgnoreRhosts {{ 'yes' if ssh_ignore_rhosts else 'no' }}
+PasswordAuthentication {{ 'yes' if ssh_password_authentication else 'no' }}
+PermitRootLogin {{ 'yes' if ssh_permit_root_login else 'no' }}
+DisableForwarding {{ 'yes' if ssh_disable_forwarding else 'no' }}

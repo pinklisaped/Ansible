@@ -1,42 +1,63 @@
 ---
-- name: Install packages
-  ansible.builtin.apt:
-    name: fail2ban
-    state: present
+- name: fail2ban
   tags:
     - install_packages
     - fail2ban
+  block:
+    - name: Install packages
+      ansible.builtin.package:
+        name: fail2ban
+        state: present
 
-- name: Copy fail2ban settings default.conf
-  ansible.builtin.template:
-    src: external_fail2ban.conf.j2
-    dest: /etc/fail2ban/jail.d/default.conf
-    mode: '0600'
-    owner: root
-    group: root
-  notify:
-    - Restart fail2ban
-  tags:
-    - fail2ban
+    - name: Copy fail2ban settings default.conf
+      ansible.builtin.template:
+        src: external_fail2ban.conf.j2
+        dest: /etc/fail2ban/jail.d/default.conf
+        mode: '0600'
+        owner: root
+        group: root
+      notify:
+        - Restart fail2ban
 
-- name: Copy fail2ban settings ssh .conf
-  ansible.builtin.template:
-    src: external_fail2ban_ssh.conf.j2
-    dest: /etc/fail2ban/jail.d/fail2ban_ssh.conf
-    mode: '0600'
-    owner: root
-    group: root
-  notify:
-    - Restart fail2ban
-  tags:
-    - fail2ban
+    - name: Copy fail2ban settings ssh .conf
+      ansible.builtin.template:
+        src: external_fail2ban_ssh.conf.j2
+        dest: /etc/fail2ban/jail.d/fail2ban_ssh.conf
+        mode: '0600'
+        owner: root
+        group: root
+      notify:
+        - Restart fail2ban
+
+- name: Check ssh service status
+  ansible.builtin.systemd:
+    name: ssh
+    enabled: true
+  register: ssh_status
+  ignore_errors: true
+
+- name: Add SSH config with key auto-added to agent
+  connection: local
+  become: false
+  community.general.ssh_config:
+    ssh_config_file: "~/.ssh/config"
+    remote_user: "{{ ansible_env.SUDO_USER | default(ansible_env.USER) }}"
+    host: "{{ ansible_host }}"
+    port: "{{ ssh_port }}"
+    state: present
 
 - name: Copy ssh settings .conf
   ansible.builtin.template:
     src: external_ssh.conf.j2
-    dest: /etc/ssh/sshd_config.d/external_ssh.conf
+    dest: /etc/ssh/sshd_config.d/10-external-ssh.conf
     mode: '0600'
     owner: root
     group: root
   notify:
     - Restart ssh
+
+- name: SSH UFW configuration
+  ansible.builtin.import_tasks: ufw.yml
+  when: ssh_port != 22
+  tags:
+    - firewall

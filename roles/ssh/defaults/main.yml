@@ -4,7 +4,12 @@ ssh_ignore_rhosts: true
 ssh_password_authentication: false
 ssh_permit_root_login: false
 ssh_disable_forwarding: true
+ssh_port: "{{ 20000 | random(start=10000, seed=inventory_hostname) }}" # Changes the default value for another persistent port
+ssh_fwd_bantime: 86400 ## Secs 86400 - 1 day, 604800 - 7 days
+ssh_fwd_ip_list_tot: 102400
+ssh_save_host: true # Saves this host in ssh conf
+ssh_failban: true
 ssh_failban_maxretry: 5
 ssh_failban_findtime: 60
-ssh_failban_bantime: 600
+ssh_failban_bantime: 600 # Sec
 ssh_failban_ignoreip: 127.0.0.1/8 10.0.0.0/8 192.0.0.0/8 172.17.0.1/16
