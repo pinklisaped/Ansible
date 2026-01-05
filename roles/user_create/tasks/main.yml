@@ -27,14 +27,14 @@
     mode: '0700'
     owner: "{{ user_create_name }}"
     group: "{{ user_create_name }}"
-  when: user_create_public_key
+  when: user_create_public_key is defined
 
 - name: Set key from file
   ansible.posix.authorized_key:
     user: "{{ user_create_name }}"
     state: present
     key: "{{ lookup('file', user_create_public_key) }}"
-  when: user_create_public_key
+  when: user_create_public_key is defined
 
 - name: Set sudoers nopasswd
   community.general.sudoers:
