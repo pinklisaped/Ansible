@@ -1,9 +1,10 @@
 ---
 # handlers file for roles/ipsec_server
-- name: UFW disable
+- name: Begin UFW restart
   community.general.ufw:
     state: disabled
+  notify: End UFW restart
 
-- name: UFW enable
+- name: End UFW restart
   community.general.ufw:
     state: enabled

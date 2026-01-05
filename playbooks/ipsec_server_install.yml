@@ -6,14 +6,6 @@
     - ipsec_server
     - lets_encrypt
   pre_tasks:
-    - name: Ufw allow app ssh
-      community.general.ufw:
-        rule: allow
-        name: OpenSSH
-        comment: OpenSSH allow app
-      tags:
-        - firewall
-
     - name: Update apt cache
       ansible.builtin.apt:
         update_cache: true
