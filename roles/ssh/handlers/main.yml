@@ -14,13 +14,6 @@
   async: 30
   poll: 0
 
-- name: Restart fail2ban
-  ansible.builtin.systemd_service:
-    name: fail2ban
-    state: restarted
-    enabled: true
-    daemon_reload: true
-
 - name: Begin UFW restart
   community.general.ufw:
     state: disabled

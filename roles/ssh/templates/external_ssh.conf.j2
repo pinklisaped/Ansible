@@ -6,3 +6,4 @@ IgnoreRhosts {{ 'yes' if ssh_ignore_rhosts else 'no' }}
 PasswordAuthentication {{ 'yes' if ssh_password_authentication else 'no' }}
 PermitRootLogin {{ 'yes' if ssh_permit_root_login else 'no' }}
 DisableForwarding {{ 'yes' if ssh_disable_forwarding else 'no' }}
+VersionAddendum none

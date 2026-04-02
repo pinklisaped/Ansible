@@ -10,6 +10,7 @@ Requirements
 
 - Ubuntu 20.04
 - Ubuntu 22.04
+- Ubuntu 24.x
 
 Role Variables
 ------------
@@ -22,10 +23,6 @@ ssh_disable_forwarding: true
 ssh_port: random # Changes the default value for another persistent port
 ssh_fwd_bantime: 86400 # Secs 86400 - 1 day, 604800 - 7 days
 ssh_save_host: true # Saves this host in ssh conf
-ssh_failban_maxretry: 5
-ssh_failban_findtime: 60
-ssh_failban_bantime: 600
-ssh_failban_ignoreip: 127.0.0.1/8 10.0.0.0/8 192.0.0.0/8
 ```
 
 Example Playbook
@@ -35,7 +32,7 @@ Including an example of how to use your role (for instance, with variables passe
 
     - hosts: servers
       roles:
-         - { role: ssh, ssh_ignore_rhosts: true, ssh_password_authentication: false, ssh_permit_root_login: false, ssh_failban_maxretry: 5, ssh_failban_findtime: 60, ssh_failban_bantime: 600, ssh_failban_ignoreip: 127.0.0.1/8 }
+         - { role: ssh, ssh_ignore_rhosts: true, ssh_password_authentication: false, ssh_permit_root_login: false }
 
 License
 -------
