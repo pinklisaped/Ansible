@@ -1,4 +1,10 @@
 ---
+- name: SSH UFW configuration
+  ansible.builtin.import_tasks: ufw_prepare.yml
+  when: ansible_distribution | lower == 'ubuntu'
+  tags:
+    - firewall
+
 - name: Check ssh service status
   ansible.builtin.systemd:
     name: ssh
