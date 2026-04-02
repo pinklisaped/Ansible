@@ -1,13 +1,15 @@
 ---
 - name: Add iptables recent rules to ufw-before.rules
   become: true
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: /etc/ufw/before.rules
-    marker_begin: 'SSH dynamic banhammer'
-    insertafter: '# End required lines'
+    marker_begin: "SSH dynamic banhammer"
+    insertafter: "# End required lines"
     block: |
       -A ufw-before-input -m recent --name botnet_block --rcheck --seconds {{ ssh_fwd_bantime }} -j DROP
       -A ufw-before-input -p tcp --dport 22 -m conntrack --ctstate NEW -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -m recent --name botnet_block --set -j DROP
+      -A ufw-before-input -p tcp --dport {{ ssh_port | int - 1 }} -m conntrack --ctstate NEW -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -m recent --name botnet_block --set -j DROP
+      -A ufw-before-input -p tcp --dport {{ ssh_port | int + 1 }} -m conntrack --ctstate NEW -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -m recent --name botnet_block --set -j DROP
   notify:
     - Begin UFW restart
 
@@ -18,7 +20,7 @@
       options xt_recent ip_list_tot={{ ssh_fwd_ip_list_tot }} ip_pkt_list_tot=4 ip_list_hash_size=0
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
   register: xt_recent_file
 
 - name: Reload or reboot xt_recent module
