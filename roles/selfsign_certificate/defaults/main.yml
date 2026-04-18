@@ -2,10 +2,13 @@
 # defaults file for roles/selfsign_certificate
 selfsign_certificate_ca_key: ca.key
 selfsign_certificate_ca_path: ca.pem
-selfsign_certificate_ca_passphrase: null
+selfsign_certificate_ca_passphrase: "{{ lookup('ansible.builtin.password', '/dev/null', seed=inventory_hostname, length=40, chars=['ascii_letters', 'digits', '@_']) }}"
 
 selfsign_certificate_key: cert-key.key
-selfsign_certificate_path: certificate.key
+selfsign_certificate_path: certificate.pem
 
 selfsign_certificate_cn: "{{ ansible_host }}"
 selfsign_certificate_san: "{{ selfsign_certificate_cn }}"
+selfsign_certificate_san_ips_enable: true
+
+selfsign_certificate_not_after: +3650d
