@@ -6,18 +6,18 @@
     - user_create
     - ssh
     - motd
-    - prometheus.prometheus.node_exporter
+    # - prometheus.prometheus.node_exporter
   pre_tasks:
     - name: Update apt cache
       ansible.builtin.apt:
         update_cache: true
         cache_valid_time: 3600
-      when: ansible_os_family | lower == 'debian'
+      when: ansible_facts['os_family'] | lower == 'debian'
       tags:
         - install_packages
 
     - name: Firewall block
-      when: ansible_distribution | lower == 'ubuntu'
+      when: ansible_facts['distribution'] | lower == 'ubuntu'
       tags:
         - firewall
       block:

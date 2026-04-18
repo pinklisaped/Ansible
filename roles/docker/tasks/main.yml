@@ -1,4 +1,4 @@
 ---
 # tasks file for roles/docker
 - name: Import OS specific tasks
-  ansible.builtin.include_tasks: "{{ ansible_os_family | lower }}.yml"
+  ansible.builtin.include_tasks: "{{ ansible_facts['os_family'] | lower }}.yml"

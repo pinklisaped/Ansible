@@ -1,12 +1,12 @@
 ---
 - name: Import OS specific tasks
-  ansible.builtin.include_tasks: "http_{{ ansible_os_family | lower }}.yml"
+  ansible.builtin.include_tasks: "http_{{ ansible_facts['os_family'] | lower }}.yml"
 
 - name: Configure nginx
   ansible.builtin.template:
     src: lets_encrypt.conf.j2
     dest: /etc/nginx/sites-available/lets_encrypt.conf
-    mode: '0644'
+    mode: "0644"
   notify:
     - Letsencrypt nginx reload
 
@@ -15,7 +15,7 @@
     state: link
     src: /etc/nginx/sites-available/lets_encrypt.conf
     dest: /etc/nginx/sites-enabled/lets_encrypt.conf
-    mode: '0644'
+    mode: "0644"
   notify:
     - Letsencrypt nginx reload
 
@@ -28,7 +28,7 @@
     state: directory
     owner: root
     group: root
-    mode: '0655'
+    mode: "0655"
 
 - name: Begin Let's Encrypt challenges
   community.crypto.acme_certificate:
@@ -54,7 +54,7 @@
         dest: "{{ lets_encrypt_site_dir }}/{{ acme_challenge_your_domain['challenge_data'][domain_name]['http-01']['resource'] }}"
         owner: root
         group: root
-        mode: '0644'
+        mode: "0644"
 
     - name: Complete Let's Encrypt challenges
       community.crypto.acme_certificate:
@@ -73,7 +73,7 @@
   ansible.builtin.template:
     src: letsencrypt_renew.sh.j2
     dest: "{{ lets_encrypt_dir }}/letsencrypt_renew.sh"
-    mode: '0500'
+    mode: "0500"
 
 - name: Cron renew certificate Let's Encrypt
   ansible.builtin.cron:

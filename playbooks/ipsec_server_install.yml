@@ -9,7 +9,7 @@
     - name: Update apt cache
       ansible.builtin.apt:
         update_cache: true
-      when: ansible_os_family | lower == 'debian'
+      when: ansible_facts['os_family'] | lower == 'debian'
       tags:
         - install_packages
   post_tasks:
@@ -18,7 +18,7 @@
         remote_src: true
         src: "{{ item.src }}"
         dest: "{{ item.dest }}"
-        mode: '0500'
+        mode: "0500"
       loop:
         - { src: "{{ lets_encrypt_certs_dir }}/chain.crt", dest: /etc/ipsec.d/cacerts/ca.crt }
         - { src: "{{ lets_encrypt_certs_dir }}/fullchain.pem", dest: /etc/ipsec.d/certs/fullchain.pem }
@@ -42,7 +42,7 @@
   vars:
     domain_name: # press domain here
     lets_encrypt_acme_email: # press email here
-    ipsec_server_leftid: '"CN={{ domain_name }}"'
+    ipsec_server_leftid: "\"CN={{ domain_name }}\""
     lets_encrypt_dir: /etc/letsencrypt
     lets_encrypt_certs_dir: "{{ lets_encrypt_dir }}/live/{{ domain_name }}"
     lets_encrypt_key_path: "{{ lets_encrypt_dir }}/keys/{{ domain_name }}.key"

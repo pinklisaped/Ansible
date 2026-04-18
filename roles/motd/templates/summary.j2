@@ -22,7 +22,7 @@ LOAD15=`cat /proc/loadavg | awk {'print $3'}`
 # Users
 PPID1=`cat /proc/$PPID/status | grep PPid | awk '{ print $2 }'`
 PPID2=`cat /proc/$PPID1/status | grep PPid | awk '{ print $2 }'`
-{% if ansible_os_family.lower() == "redhat" %}
+{% if ansible_facts['os_family'].lower() == "redhat" %}
 USERNAME=`whoami`
 {% else %}
 USERNAME=`ps -x | grep $PPID2 | awk '{ print $6 }' |  sed "s/[[:digit:].-]//g"`

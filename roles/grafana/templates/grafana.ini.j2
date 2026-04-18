@@ -42,7 +42,7 @@ protocol = http
 http_port = {{ grafana_port }}
 
 # The public facing domain name used to access grafana from a browser
-domain = {{ ansible_default_ipv4.address }}
+domain = {{ ansible_facts['default_ipv4']['address'] }}
 
 # Redirect to correct domain if host header does not match domain
 # Prevents DNS rebinding attacks

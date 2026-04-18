@@ -1,7 +1,7 @@
 logoutput: stdout
 errorlog: stderr
-internal: {{ ansible_default_ipv4['interface'] }} port = {{ socks5_port }}
-external: {{ ansible_default_ipv4['interface'] }}
+internal: {{ ansible_facts['default_ipv4']['interface'] }} port = {{ socks5_port }}
+external: {{ ansible_facts['default_ipv4']['interface'] }}
 
 socksmethod: username
 user.privileged: root
