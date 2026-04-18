@@ -4,19 +4,28 @@
   become: true
   roles:
     - user_create
-    - prometheus.prometheus.node_exporter
     - ssh
     - motd
+    - prometheus.prometheus.node_exporter
   pre_tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+      when: ansible_os_family | lower == 'debian'
+      tags:
+        - install_packages
+
     - name: Firewall block
+      when: ansible_distribution | lower == 'ubuntu'
       tags:
         - firewall
       block:
-        - name: Ufw allow app ssh
-          community.general.ufw:
-            rule: allow
-            name: OpenSSH
-            comment: OpenSSH allow app
+        - name: Install Ufw
+          ansible.builtin.apt:
+            name:
+              - ufw
+            state: present
 
         - name: Ufw enable and deny incoming
           community.general.ufw:
@@ -24,12 +33,11 @@
             default: deny
             direction: incoming
 
-    - name: Update apt cache
-      ansible.builtin.apt:
-        update_cache: true
-      when: ansible_os_family | lower == 'debian'
-      tags:
-        - install_packages
+        - name: Comment allow ping rule
+          ansible.builtin.replace:
+            path: /etc/ufw/before.rules
+            regexp: "^-A ufw-before-input -p icmp --icmp-type echo-request -j ACCEPT"
+            replace: "# -A ufw-before-input -p icmp --icmp-type echo-request -j ACCEPT"
   vars:
     user_create_name: ansible
     user_create_public_key: ~/.ssh/ansible.pub
