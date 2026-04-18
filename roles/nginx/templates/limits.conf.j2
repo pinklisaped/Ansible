@@ -1,0 +1,10 @@
+# Auto-generated Nginx limit zones for {{ item.key }}
+# Managed by Ansible
+
+{% if item.value.conn_limit_enable | default(true) %}
+limit_conn_zone $binary_remote_addr zone={{ item.key }}_conn_limits:{{ item.value.conn_limit }};
+{% endif %}
+
+{% if item.value.req_limit_enable | default(true) %}
+limit_req_zone $binary_remote_addr zone={{ item.key }}_req_limits:{{ item.value.req_limit }} rate={{ item.value.rate }};
+{% endif %}

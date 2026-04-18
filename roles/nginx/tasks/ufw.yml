@@ -1,0 +1,9 @@
+---
+- name: Open ufw ports
+  community.general.ufw:
+    rule: allow
+    port: "{{ item }}"
+    comment: "Http(s) web port"
+  loop: "{{ nginx_firewall_ports }}"
+  tags:
+    - firewall

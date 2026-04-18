@@ -1,0 +1,5 @@
+---
+selfsign_certificate_cn: example.com
+selfsign_certificate_path: "/etc/nginx/ssl/example.crt"
+selfsign_certificate_key: "/etc/nginx/ssl/example.key"
+selfsign_certificate_san_ips_enable: false

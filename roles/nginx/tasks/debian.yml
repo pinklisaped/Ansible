@@ -1,0 +1,27 @@
+---
+- name: Install dependencies
+  ansible.builtin.apt:
+    name:
+      - ca-certificates
+      - lsb-release
+    state: present
+    cache_valid_time: 3600
+    update_cache: true
+
+- name: Download nginx key
+  ansible.builtin.get_url:
+    url: "{{ nginx_key }}"
+    dest: "{{ nginx_key_path }}"
+    mode: "0644"
+  when: nginx_state == 'present'
+
+- name: Add nginx repo
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by={{ nginx_key_path }}] {{ nginx_repo }} {{ ansible_lsb.codename }} nginx"
+    state: "{{ nginx_state }}"
+    update_cache: true
+
+- name: Install nginx + modules
+  ansible.builtin.apt:
+    name: "{{ (nginx_packages + [nginx_package]) | unique }}"
+    state: "{{ nginx_state }}"

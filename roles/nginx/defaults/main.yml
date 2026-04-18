@@ -1,0 +1,43 @@
+---
+### Basic config ###
+nginx_state: present
+nginx_version: latest
+nginx_package: >-
+  {{
+    'nginx'
+    if nginx_version | default('latest') == 'latest'
+    else (
+      'nginx=' ~ nginx_version
+      if ansible_facts.os_family == 'Debian'
+      else 'nginx-' ~ nginx_version
+    )
+  }}
+nginx_service_enable: true
+nginx_service_state: "{{ 'started' if nginx_service_enable else 'stopped' }}"
+nginx_repo: "http://nginx.org/packages/{{ ansible_facts['distribution'] | lower }}"
+nginx_key: "https://nginx.org/keys/nginx_signing.key"
+nginx_key_path: "/usr/share/keyrings/nginx-archive-keyring.asc"
+nginx_modules:
+  - acme
+  - geoip
+nginx_base_packages: >-
+  {{ nginx_modules | map('regex_replace', '^', 'nginx-module-') | list }}
+nginx_extra_packages: []
+nginx_packages: "{{ nginx_base_packages + nginx_extra_packages }}"
+
+### Module configs ###
+nginx_acme_enable: true
+nginx_rate_limits_enable: true
+nginx_rate_limits_zones:
+  default:
+    conn_limit_enable: true
+    conn_limit: &conn_limit "10m"
+    req_limit_enable: true
+    req_limit: *conn_limit
+    rate: "5r/s"
+
+### Firewall ###
+nginx_firewall_manage: true
+nginx_firewall_ports:
+  - 80
+  - 443
